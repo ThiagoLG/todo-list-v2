@@ -1,12 +1,10 @@
 import { HomeContainer } from './styles'
+import { TaskForm } from './TaskForm'
 
 export function Home() {
   return (
     <HomeContainer>
-      <form>
-        <input type="text" />
-        <button type="submit">Enviar</button>
-      </form>
+      <TaskForm />
     </HomeContainer>
   )
 }
