@@ -15,7 +15,8 @@ const FORM_GROUP_SIZE = {
 } as const
 
 interface TaskFormProps {
-  size: keyof typeof FORM_GROUP_SIZE
+  size?: keyof typeof FORM_GROUP_SIZE
+  color?: string
 }
 
 // Component Styling
@@ -38,26 +39,14 @@ export const FormGroup = styled.div<TaskFormProps>`
   flex-direction: column;
   gap: 0.25rem;
   margin: auto;
-  width: ${(props) => FORM_GROUP_SIZE[props.size]};
+  width: ${(props) => FORM_GROUP_SIZE[props.size || 10]};
   padding: 0.5rem;
+`
 
-  label {
-    font-weight: 600;
-  }
-  input,
-  select {
-    font-size: 1.25rem;
-    padding: 0.25rem;
-    /* border-radius: 0.25rem; */
-    border: 1px solid #ccc;
-    color: ${(props) => props.theme['gray-700']};
-    box-shadow: 0px 1px 3px ${(props) => props.theme['prirmary-color']};
-    border-color: transparent transparent
-      ${(props) => props.theme['prirmary-color']} transparent;
-
-    &:focus,
-    &:focus-visible {
-      outline: 0;
-    }
-  }
+export const SelectOptionIndicator = styled.div<TaskFormProps>`
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background-color: ${(props) => props.color};
+  margin-right: 0.5rem;
 `
