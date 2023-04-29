@@ -88,6 +88,7 @@ export function TaskForm() {
           sx={{
             'margin-top': '1rem',
             padding: '1rem',
+            boxSizing: 'border-box',
           }}
         >
           <div className="row">

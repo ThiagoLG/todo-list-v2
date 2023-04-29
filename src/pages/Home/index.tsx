@@ -1,4 +1,4 @@
-import { Box, Button } from '@mui/material'
+import { Box, Button, Dialog, DialogContent, DialogTitle } from '@mui/material'
 import { useState } from 'react'
 import { HomeContainer } from './styles'
 import { TaskForm } from './TaskForm'
@@ -19,11 +19,21 @@ export function Home() {
         </Button>
       </Box>
 
-      <Box
-        sx={{ transition: '200ms', transform: `scale(${showForm ? 1 : 0})` }}
-      >
+      <Dialog open={showForm} maxWidth="lg">
+        <DialogTitle>
+          <Box flex={1} sx={{ justifyContent: 'space-between' }}>
+            <span>Create new task</span>{' '}
+            <span
+              onClick={() => {
+                setShowForm(false)
+              }}
+            >
+              X
+            </span>
+          </Box>
+        </DialogTitle>
         <TaskForm />
-      </Box>
+      </Dialog>
     </HomeContainer>
   )
 }
