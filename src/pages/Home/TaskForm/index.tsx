@@ -9,6 +9,7 @@ import {
 import { FormGroup, SelectOptionIndicator, TaskFormContainer } from './styles'
 import TaskAltSharpIcon from '@mui/icons-material/TaskAltSharp'
 import { useState } from 'react'
+import GoogleMaps from '../../../components/GMapsAdressAutofill'
 
 interface CategoryOptions {
   id: number
@@ -136,7 +137,8 @@ export function TaskForm() {
           <div className="row">
             {/* Address */}
             <FormGroup size={10}>
-              <TextField id="task-address" label="Address" variant="standard" />
+              {/* <TextField id="task-address" label="Address" variant="standard" /> */}
+              <GoogleMaps />
             </FormGroup>
           </div>
 
