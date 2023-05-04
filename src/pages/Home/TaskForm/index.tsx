@@ -3,7 +3,13 @@ import {
   Box,
   Button,
   Chip,
+  FormControl,
+  Input,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
+  SelectChangeEvent,
   TextField,
 } from '@mui/material'
 import { FormGroup, SelectOptionIndicator, TaskFormContainer } from './styles'
@@ -79,8 +85,28 @@ export function TaskForm() {
       value: 'Other',
     },
   ]
-  const [tags, setTags] = useState<TaskTagItem[]>(tagsList)
+  const weekdays: { [key: string]: number } = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6,
+  }
+  const weekdaysList: string[] = Object.keys(weekdays)
 
+  const [tags, setTags] = useState<TaskTagItem[]>(tagsList)
+  const [selectedWeekdays, setSelectedWeekdays] = useState<string[]>([])
+
+  const handleChangeWeekday = (
+    event: SelectChangeEvent<typeof selectedWeekdays>,
+  ) => {
+    const {
+      target: { value },
+    } = event
+    setSelectedWeekdays(typeof value === 'string' ? value.split(',') : value)
+  }
   return (
     <div className="formContainer">
       <TaskFormContainer>
@@ -144,20 +170,53 @@ export function TaskForm() {
 
           <div className="row">
             {/* Price */}
-            <FormGroup size={4}>
+            <FormGroup size={2}>
               <TextField
                 id="task-medium-price"
-                label="Task Medium Price"
+                label="Medium Price"
                 variant="standard"
               />
             </FormGroup>
             {/* WeekDays opened */}
-            <FormGroup size={3}>
-              <TextField
-                id="task-week-days"
-                label="Weekdays Opened"
-                variant="standard"
-              />
+            <FormGroup size={5}>
+              <FormControl>
+                <InputLabel id="task-week-days">Weekdays Opened</InputLabel>
+                <Select
+                  labelId="task-week-days"
+                  id="task-week-days-opened"
+                  multiple
+                  value={selectedWeekdays}
+                  onChange={handleChangeWeekday}
+                  input={<Input id="select-weekdays" />}
+                  renderValue={(selected) => (
+                    <Box
+                      sx={{
+                        flex: 1,
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 0.25,
+                      }}
+                    >
+                      {selected
+                        .sort((a, b) => weekdays[a] - weekdays[b])
+                        .map((value: string) => (
+                          <Chip
+                            key={value}
+                            size="small"
+                            label={value.charAt(0)}
+                            title={value}
+                          />
+                        ))}
+                    </Box>
+                  )}
+                >
+                  {weekdaysList.map((day) => (
+                    <MenuItem key={day} value={day}>
+                      {day}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </FormGroup>
             {/* Opening Hours */}
             <FormGroup size={3}>
@@ -176,8 +235,8 @@ export function TaskForm() {
                 id="task-description"
                 label="Task Description"
                 multiline
-                rows={5}
-                variant="standard"
+                minRows={2}
+                variant="filled"
               />
             </FormGroup>
           </div>
