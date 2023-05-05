@@ -31,6 +31,10 @@ interface TaskTagItem {
 }
 
 export function TaskForm() {
+  const currencyFormatter = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  })
   const tagsList: TaskTagItem[] = [
     {
       id: 1,
@@ -98,6 +102,7 @@ export function TaskForm() {
 
   const [tags, setTags] = useState<TaskTagItem[]>(tagsList)
   const [selectedWeekdays, setSelectedWeekdays] = useState<string[]>([])
+  const [price, setPrice] = useState('')
 
   const handleChangeWeekday = (
     event: SelectChangeEvent<typeof selectedWeekdays>,
@@ -106,6 +111,12 @@ export function TaskForm() {
       target: { value },
     } = event
     setSelectedWeekdays(typeof value === 'string' ? value.split(',') : value)
+  }
+
+  const handleInputPrice = (event: any) => {
+    let value = event.target.value
+    value = value.replace(/\D+/g, '')
+    setPrice(currencyFormatter.format(value / 100 || 0))
   }
   return (
     <div className="formContainer">
@@ -170,15 +181,17 @@ export function TaskForm() {
 
           <div className="row">
             {/* Price */}
-            <FormGroup size={2}>
+            <FormGroup size={3}>
               <TextField
                 id="task-medium-price"
                 label="Medium Price"
                 variant="standard"
+                value={price}
+                onChange={handleInputPrice}
               />
             </FormGroup>
             {/* WeekDays opened */}
-            <FormGroup size={5}>
+            <FormGroup size={4}>
               <FormControl>
                 <InputLabel id="task-week-days">Weekdays Opened</InputLabel>
                 <Select
@@ -269,6 +282,17 @@ export function TaskForm() {
                   />
                 )}
               ></Autocomplete>
+            </FormGroup>
+          </div>
+
+          <div className="row">
+            {/*  Principal Link */}
+            <FormGroup size={10}>
+              <TextField
+                id="task-principal-link"
+                label="Principal Link"
+                variant="standard"
+              />
             </FormGroup>
           </div>
 

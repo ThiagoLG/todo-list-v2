@@ -23,7 +23,7 @@ interface TaskFormProps {
 export const TaskFormContainer = styled.form`
   display: flex;
   flex-direction: column;
-  width: 40rem;
+  /* width: 40rem; */
   gap: 0.5rem;
   margin: auto;
 
