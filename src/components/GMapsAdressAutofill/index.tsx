@@ -1,17 +1,15 @@
+import * as React from 'react'
+import Box from '@mui/material/Box'
+import TextField from '@mui/material/TextField'
+import Autocomplete from '@mui/material/Autocomplete'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 import parse from 'autosuggest-highlight/parse'
-import {
-  debounce,
-  Autocomplete,
-  TextField,
-  Grid,
-  Typography,
-} from '@mui/material'
-import React from 'react'
+import { debounce } from '@mui/material/utils'
+import { useState } from 'react'
 
-// This key was created specifically for the demo in mui.com.
-// You need to create a new one for your application.
-const GOOGLE_MAPS_API_KEY = 'AIzaSyCrDf32aQTCVENBhFJbMBKOUTiUAABtC2o'
+const GOOGLE_MAPS_API_KEY = ''
 
 function loadScript(src: string, position: HTMLElement | null, id: string) {
   if (!position) {
@@ -42,9 +40,9 @@ interface PlaceType {
 }
 
 export default function GoogleMaps() {
-  const [value, setValue] = React.useState<PlaceType | null>(null)
-  const [inputValue, setInputValue] = React.useState('')
-  const [options, setOptions] = React.useState<readonly PlaceType[]>([])
+  const [value, setValue] = useState<PlaceType | null>(null)
+  const [inputValue, setInputValue] = useState('')
+  const [options, setOptions] = useState<readonly PlaceType[]>([])
   const loaded = React.useRef(false)
 
   if (typeof window !== 'undefined' && !loaded.current) {
@@ -117,12 +115,10 @@ export default function GoogleMaps() {
   return (
     <Autocomplete
       id="google-map-demo"
-      // sx={{ width: 300 }}
       getOptionLabel={(option) =>
         typeof option === 'string' ? option : option.description
       }
       filterOptions={(x) => x}
-      fullWidth
       options={options}
       autoComplete
       includeInputInList
@@ -130,6 +126,7 @@ export default function GoogleMaps() {
       value={value}
       noOptionsText="No locations"
       onChange={(event: any, newValue: PlaceType | null) => {
+        console.log(newValue)
         setOptions(newValue ? [newValue, ...options] : options)
         setValue(newValue)
       }}
@@ -137,12 +134,7 @@ export default function GoogleMaps() {
         setInputValue(newInputValue)
       }}
       renderInput={(params) => (
-        <TextField
-          {...params}
-          variant="standard"
-          label="Add a location"
-          fullWidth
-        />
+        <TextField {...params} label="Address" variant="standard" fullWidth />
       )}
       renderOption={(props, option) => {
         const matches =
@@ -167,13 +159,13 @@ export default function GoogleMaps() {
                 sx={{ width: 'calc(100% - 44px)', wordWrap: 'break-word' }}
               >
                 {parts.map((part, index) => (
-                  <Grid
+                  <Box
                     key={index}
                     component="span"
                     sx={{ fontWeight: part.highlight ? 'bold' : 'regular' }}
                   >
                     {part.text}
-                  </Grid>
+                  </Box>
                 ))}
                 <Typography variant="body2" color="text.secondary">
                   {option.structured_formatting.secondary_text}
