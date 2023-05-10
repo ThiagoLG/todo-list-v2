@@ -21,7 +21,10 @@ export function Home() {
 
       <Dialog open={showForm} fullWidth maxWidth="sm">
         <DialogTitle>
-          <Box flex={1} sx={{ justifyContent: 'space-between' }}>
+          <Box
+            flex={1}
+            sx={{ display: 'flex', justifyContent: 'space-between' }}
+          >
             <span>Create new task</span>{' '}
             <span
               onClick={() => {
