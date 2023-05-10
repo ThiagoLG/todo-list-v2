@@ -19,7 +19,7 @@ export function Home() {
         </Button>
       </Box>
 
-      <Dialog open={showForm} fullWidth maxWidth="sm">
+      <Dialog open={showForm} fullWidth maxWidth="md">
         <DialogTitle>
           <Box
             flex={1}

@@ -23,7 +23,7 @@ interface PlaceType {
   place_id: string
 }
 
-const GOOGLE_MAPS_API_KEY = 'AIzaSyC9P6t5cCIExLyxGFuj3Nm1accolzVUBmY'
+const GOOGLE_MAPS_API_KEY = ''
 const autocompleteService = { current: null }
 
 const loadScript = (src: string, position: HTMLElement | null, id: string) => {

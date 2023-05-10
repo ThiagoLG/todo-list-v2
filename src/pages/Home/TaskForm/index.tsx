@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
   Autocomplete,
   Box,
@@ -16,7 +17,11 @@ import { FormGroup, SelectOptionIndicator, TaskFormContainer } from './styles'
 import TaskAltSharpIcon from '@mui/icons-material/TaskAltSharp'
 import { useState } from 'react'
 import GoogleMaps from '../../../components/GMapsAdressAutofill'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 
+// #region Typings
 interface CategoryOptions {
   id: number
   color: string
@@ -30,79 +35,103 @@ interface TaskTagItem {
   category: string
 }
 
+interface AddressObject {}
+// #endregion
+
+// #region Content
+const tagsList: TaskTagItem[] = [
+  {
+    id: 1,
+    value: 'Front-end',
+    color: '#c57d7d',
+    category: 'Front-end',
+  },
+  {
+    id: 2,
+    value: 'Back-end',
+    color: '#8393eb',
+    category: 'Back-end',
+  },
+  {
+    id: 3,
+    value: 'Mobile',
+    color: '#96dfa1',
+    category: 'Mobile',
+  },
+  {
+    id: 4,
+    value: 'Design',
+    color: '#8896e4',
+    category: 'Design',
+  },
+  {
+    id: 5,
+    value: 'DevOps',
+    color: '#ed94d1',
+    category: 'DevOps',
+  },
+]
+const categories: CategoryOptions[] = [
+  {
+    id: 1,
+    color: 'red',
+    value: 'Shopping',
+  },
+  {
+    id: 2,
+    color: 'green',
+    value: 'Studies',
+  },
+  {
+    id: 3,
+    color: 'blue',
+    value: 'Entertrainment',
+  },
+  {
+    id: 4,
+    color: 'black',
+    value: 'Other',
+  },
+]
+const weekdays: { [key: string]: number } = {
+  Sunday: 0,
+  Monday: 1,
+  Tuesday: 2,
+  Wednesday: 3,
+  Thursday: 4,
+  Friday: 5,
+  Saturday: 6,
+}
+const weekdaysList: string[] = Object.keys(weekdays)
+
+// #endregion
+
 export function TaskForm() {
   const currencyFormatter = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
   })
-  const tagsList: TaskTagItem[] = [
-    {
-      id: 1,
-      value: 'Front-end',
-      color: '#b53f3f',
-      category: 'Front-end',
-    },
-    {
-      id: 2,
-      value: 'Back-end',
-      color: '#3f51b5',
-      category: 'Back-end',
-    },
-    {
-      id: 3,
-      value: 'Mobile',
-      color: '#00ff26',
-      category: 'Mobile',
-    },
-    {
-      id: 4,
-      value: 'Design',
-      color: '#3f51b5',
-      category: 'Design',
-    },
-    {
-      id: 5,
-      value: 'DevOps',
-      color: '#ff00ae',
-      category: 'DevOps',
-    },
-  ]
-  const categories: CategoryOptions[] = [
-    {
-      id: 1,
-      color: 'red',
-      value: 'Shopping',
-    },
-    {
-      id: 2,
-      color: 'green',
-      value: 'Studies',
-    },
-    {
-      id: 3,
-      color: 'blue',
-      value: 'Entertrainment',
-    },
-    {
-      id: 4,
-      color: 'black',
-      value: 'Other',
-    },
-  ]
-  const weekdays: { [key: string]: number } = {
-    Sunday: 0,
-    Monday: 1,
-    Tuesday: 2,
-    Wednesday: 3,
-    Thursday: 4,
-    Friday: 5,
-    Saturday: 6,
-  }
-  const weekdaysList: string[] = Object.keys(weekdays)
 
   const [tags, setTags] = useState<TaskTagItem[]>(tagsList)
   const [selectedWeekdays, setSelectedWeekdays] = useState<string[]>([])
-  const [price, setPrice] = useState('')
+  const [price, setPrice] = useState('R$ 0,00')
+
+  const TaskFormValidationSchema = z.object({
+    category: z.string().nonempty(),
+    title: z.string().nonempty(),
+    address: z.string(),
+    price: z.string(),
+    weekdaysOpened: z.array(z.string()),
+    tags: z.array(z.string()).nonempty(),
+    description: z.string().nonempty(),
+    principalLink: z.string(),
+  })
+
+  type TaskItemFormData = z.infer<typeof TaskFormValidationSchema>
+
+  const { register, handleSubmit } = useForm<TaskItemFormData>({
+    resolver: zodResolver(TaskFormValidationSchema),
+  })
 
   const handleChangeWeekday = (
     event: SelectChangeEvent<typeof selectedWeekdays>,
@@ -118,9 +147,14 @@ export function TaskForm() {
     value = value.replace(/\D+/g, '')
     setPrice(currencyFormatter.format(value / 100 || 0))
   }
+
+  function handleSubmitForm(data: TaskItemFormData) {
+    console.log(data)
+  }
+
   return (
     <div className="formContainer">
-      <TaskFormContainer>
+      <TaskFormContainer onSubmit={handleSubmit(handleSubmitForm)}>
         <Paper
           elevation={3}
           sx={{
@@ -138,6 +172,7 @@ export function TaskForm() {
                 fullWidth
                 options={categories}
                 getOptionLabel={(option) => option.value}
+                {...register('category')}
                 renderOption={(props, option) => (
                   <Box component="li" {...props}>
                     <SelectOptionIndicator color={option.color} />
@@ -167,6 +202,7 @@ export function TaskForm() {
                 label="Task Title"
                 fullWidth
                 variant="standard"
+                autoComplete="false"
               />
             </FormGroup>
           </div>
@@ -303,6 +339,7 @@ export function TaskForm() {
                 variant="outlined"
                 color="success"
                 startIcon={<TaskAltSharpIcon />}
+                type="submit"
               >
                 Create Task
               </Button>
