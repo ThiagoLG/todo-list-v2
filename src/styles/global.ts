@@ -1,4 +1,5 @@
 import { createGlobalStyle } from 'styled-components'
+import { defaultTheme } from './themes/default'
 
 export const GlobalStyle = createGlobalStyle`
 * {
@@ -21,4 +22,18 @@ a {
 ul, ol {
   list-style: none;
 }
+
+::-webkit-scrollbar {
+    width: 0.5rem;
+    background-color: ${defaultTheme['gray-200']}
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background-color: ${defaultTheme['gray-500']};
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: ${defaultTheme['gray-300']};
+  }
 `

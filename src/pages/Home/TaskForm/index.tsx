@@ -20,25 +20,10 @@ import GoogleMaps from '../../../components/GMapsAdressAutofill'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { currencyFormatter } from '../../../services/utils'
+import { CategoryOptions, TaskTagItem } from '../../../models/task.models'
 
-// #region Typings
-interface CategoryOptions {
-  id: number
-  color: string
-  value: string
-}
-
-interface TaskTagItem {
-  id: number
-  value: string
-  color: string
-  category: string
-}
-
-interface AddressObject {}
-// #endregion
-
-// #region Content
+// #region Content (temporary)
 const tagsList: TaskTagItem[] = [
   {
     id: 1,
@@ -103,43 +88,43 @@ const weekdays: { [key: string]: number } = {
   Saturday: 6,
 }
 const weekdaysList: string[] = Object.keys(weekdays)
-
 // #endregion
 
 export function TaskForm() {
-  const currencyFormatter = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  })
-
-  const [tags, setTags] = useState<TaskTagItem[]>(tagsList)
+  const [tags] = useState<TaskTagItem[]>(tagsList)
   const [selectedWeekdays, setSelectedWeekdays] = useState<string[]>([])
   const [price, setPrice] = useState('R$ 0,00')
+  let selectedTags: any = []
 
   const TaskFormValidationSchema = z.object({
-    category: z.string().nonempty(),
-    title: z.string().nonempty(),
-    address: z.string(),
+    category: z.string().nonempty('Seleção de categoria é obrigatória'),
+    title: z.string().nonempty('Obrigatório preencher o título da task'),
+    // address: z.string(),
     price: z.string(),
     weekdaysOpened: z.array(z.string()),
-    tags: z.array(z.string()).nonempty(),
+    tags: z
+      .array(z.string())
+      .transform((e) => console.log(e))
+      .refine(() => {
+        return !selectedTags.length
+      }),
     description: z.string().nonempty(),
-    principalLink: z.string(),
+    principalLink: z.string().nullable(),
   })
 
   type TaskItemFormData = z.infer<typeof TaskFormValidationSchema>
 
-  const { register, handleSubmit } = useForm<TaskItemFormData>({
-    resolver: zodResolver(TaskFormValidationSchema),
-  })
+  const { register, handleSubmit, formState, trigger } =
+    useForm<TaskItemFormData>({
+      resolver: zodResolver(TaskFormValidationSchema),
+    })
 
-  const handleChangeWeekday = (
-    event: SelectChangeEvent<typeof selectedWeekdays>,
-  ) => {
-    const {
-      target: { value },
-    } = event
+  const { errors } = formState
+
+  function handleChangeWeekday(event: SelectChangeEvent<string[]>) {
+    const value = event.target.value
     setSelectedWeekdays(typeof value === 'string' ? value.split(',') : value)
+    trigger('weekdaysOpened')
   }
 
   const handleInputPrice = (event: any) => {
@@ -154,40 +139,33 @@ export function TaskForm() {
 
   return (
     <div className="formContainer">
-      <TaskFormContainer onSubmit={handleSubmit(handleSubmitForm)}>
-        <Paper
-          elevation={3}
-          sx={{
-            'margin-top': '1rem',
-            padding: '1rem',
-            boxSizing: 'border-box',
-          }}
-        >
+      <TaskFormContainer onSubmit={handleSubmit(handleSubmitForm)} noValidate>
+        <Paper className="paper" elevation={3}>
           <div className="row">
             {/* Category Field */}
             <FormGroup size={5}>
               <Autocomplete
-                aria-required
-                id="taskCategory"
                 fullWidth
                 options={categories}
                 getOptionLabel={(option) => option.value}
-                {...register('category')}
                 renderOption={(props, option) => (
                   <Box component="li" {...props}>
                     <SelectOptionIndicator color={option.color} />
                     {option.value}
                   </Box>
                 )}
+                onBlur={() => trigger('category')}
                 renderInput={(params) => (
                   <TextField
                     {...params}
+                    {...register('category')}
                     label="Select a Category"
                     inputProps={{
                       ...params.inputProps,
-                      autoComplete: 'Category',
                     }}
                     variant="standard"
+                    error={!!errors.category}
+                    helperText={errors.category?.message}
                   />
                 )}
               ></Autocomplete>
@@ -196,13 +174,13 @@ export function TaskForm() {
             {/* Task Title */}
             <FormGroup size={5}>
               <TextField
-                required
-                id="task-title"
-                name="task-title"
-                label="Task Title"
                 fullWidth
+                label="Task Title *"
                 variant="standard"
                 autoComplete="false"
+                {...register('title')}
+                error={!!errors.title}
+                helperText={errors.title?.message}
               />
             </FormGroup>
           </div>
@@ -210,7 +188,6 @@ export function TaskForm() {
           <div className="row">
             {/* Address */}
             <FormGroup size={10}>
-              {/* <TextField id="task-address" label="Address" variant="standard" /> */}
               <GoogleMaps />
             </FormGroup>
           </div>
@@ -219,11 +196,14 @@ export function TaskForm() {
             {/* Price */}
             <FormGroup size={3}>
               <TextField
-                id="task-medium-price"
+                {...register('price')}
                 label="Medium Price"
+                required={false}
                 variant="standard"
                 value={price}
                 onChange={handleInputPrice}
+                error={!!errors.price}
+                helperText={errors.price?.message}
               />
             </FormGroup>
             {/* WeekDays opened */}
@@ -232,20 +212,14 @@ export function TaskForm() {
                 <InputLabel id="task-week-days">Weekdays Opened</InputLabel>
                 <Select
                   labelId="task-week-days"
-                  id="task-week-days-opened"
                   multiple
+                  {...register('weekdaysOpened')}
                   value={selectedWeekdays}
                   onChange={handleChangeWeekday}
                   input={<Input id="select-weekdays" />}
+                  error={!!errors.weekdaysOpened}
                   renderValue={(selected) => (
-                    <Box
-                      sx={{
-                        flex: 1,
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: 0.25,
-                      }}
-                    >
+                    <Box className="multiSelectBox">
                       {selected
                         .sort((a, b) => weekdays[a] - weekdays[b])
                         .map((value: string) => (
@@ -270,9 +244,9 @@ export function TaskForm() {
             {/* Opening Hours */}
             <FormGroup size={3}>
               <TextField
-                id="task-opening-hours"
                 label="Opening Hours"
                 variant="standard"
+                autoComplete="false"
               />
             </FormGroup>
           </div>
@@ -281,11 +255,13 @@ export function TaskForm() {
             {/*  Task Description */}
             <FormGroup size={10}>
               <TextField
-                id="task-description"
-                label="Task Description"
                 multiline
+                label="Task Description"
+                {...register('description')}
                 minRows={2}
                 variant="filled"
+                error={!!errors.description}
+                helperText={errors.description?.message}
               />
             </FormGroup>
           </div>
@@ -294,10 +270,17 @@ export function TaskForm() {
             {/*  Tags */}
             <FormGroup size={10}>
               <Autocomplete
-                id="task=tags"
+                // {...register('tags')}
+                {...register('tags')}
+                onChange={(e, v) => {
+                  selectedTags = v
+                  trigger('tags')
+                }}
                 multiple
                 options={tags}
                 renderTags={(tagValue, getTagProps) => {
+                  selectedTags = tagValue
+                  // console.log(selectedTags)
                   return tagValue.map((option, index) => (
                     <Chip
                       {...getTagProps({ index })}
@@ -315,6 +298,8 @@ export function TaskForm() {
                     {...params}
                     placeholder="Add Tag"
                     variant="standard"
+                    error={!!errors.tags}
+                    helperText={errors.tags?.message}
                   />
                 )}
               ></Autocomplete>
@@ -325,15 +310,17 @@ export function TaskForm() {
             {/*  Principal Link */}
             <FormGroup size={10}>
               <TextField
-                id="task-principal-link"
                 label="Principal Link"
                 variant="standard"
+                {...register('principalLink')}
+                error={!!errors.principalLink}
+                helperText={errors.principalLink?.message}
               />
             </FormGroup>
           </div>
 
           <div className="row">
-            {/*  Task Description */}
+            {/*  Task Create Button */}
             <FormGroup size={10}>
               <Button
                 variant="outlined"

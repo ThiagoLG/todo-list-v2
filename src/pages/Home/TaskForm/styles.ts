@@ -32,6 +32,19 @@ export const TaskFormContainer = styled.form`
     flex-direction: row;
     flex-wrap: wrap;
   }
+
+  .paper {
+    margin-top: 1rem;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+
+  .multiSelectBox {
+    display: flex;
+    flex: 1;
+    flex-wrap: 'wrap';
+    gap: 0.5rem;
+  }
 `
 
 export const FormGroup = styled.div<TaskFormProps>`
