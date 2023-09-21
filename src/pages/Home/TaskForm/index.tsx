@@ -134,7 +134,7 @@ export function TaskForm() {
   }
 
   function handleSubmitForm(data: TaskItemFormData) {
-    console.log(data)
+    console.log('data: ', data)
   }
 
   return (
